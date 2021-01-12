@@ -1,21 +1,25 @@
 <?php
+    session_start();
     include_once "database.php";
 
     $q = "select * from quests";
-
     $result = mysqli_query($conn, $q) or die ("query error");
-
+    $alert = "<div class='contPopout'>
+            <div class='popout'>
+                Czy na pewno usunąć zadanie? <br>
+                <a href='index.php?alert=yes'><input type='submit' value='TAK' class='butPopout'></a> 
+                <a href='index.php?alert=no'><input type='submit' value='NIE' class='butPopout'></a>
+            </div>
+            </div>";
 
     if(isset($_GET['op']))
     {
         $operation = $_GET['op'];
-
         if($operation == "delete")
         {
             $deleteID = $_GET['id'];
-            $qD = "delete from quests where quest_id=$deleteID" or die ('query error');
-            $resultDelete = mysqli_query($conn, $qD);
-            header('location:index.php');
+            $_SESSION['deleteID'] = $deleteID;
+            echo($alert);
         }
 
         if($operation == 'edit')
@@ -47,6 +51,23 @@
             header('location:index.php');
         }
     }
+
+    if(isset($_GET['alert']))
+    {
+        $alert = $_GET['alert'];
+        if($alert == 'yes')
+        {
+            $deleteID = $_SESSION['deleteID'];
+            $qD = "delete from quests where quest_id=$deleteID" or die ('query error');
+            $resultDelete = mysqli_query($conn, $qD) or die('result error');
+            header('location:index.php');
+        }
+        else
+        {
+            header('location:index.php');
+        }
+    }
+    
 
     if(isset($_POST['op']))
     {
@@ -95,7 +116,6 @@
     <link rel="stylesheet" href="css/fontello.css">
 </head>
 <body>
-
     <div id="contener">
         <div id="todo">
             <form id="formInput" action="" method="post">
